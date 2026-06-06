@@ -1,0 +1,22 @@
+package com.signpdf.enums;
+
+public enum AuditAction {
+
+	REGISTER, LOGIN,
+
+	UPLOAD_DOCUMENT,
+
+	VIEW_DOCUMENT,
+
+	CREATE_SIGNATURE,
+
+	PLACE_SIGNATURE,
+
+	GENERATE_SIGN_LINK,
+
+	SIGN_DOCUMENT,
+
+	DOWNLOAD_DOCUMENT,
+
+	DELETE_DOCUMENT
+}
