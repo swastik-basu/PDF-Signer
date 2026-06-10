@@ -1,13 +1,17 @@
 package com.signpdf.dto.response;
+import java.time.LocalDateTime;
+
 import com.signpdf.enums.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 public class SignaturePlacementResponse{
-	Long id;
+	Long Id;
 
-	Long documentId;
+	Long DocumentId;
 
 	Long signatureTemplateId;
 
@@ -24,4 +28,6 @@ public class SignaturePlacementResponse{
 	Double rotation;
 
 	SignaturePlacementStatus status;
+	
+	LocalDateTime createdAt;
 }

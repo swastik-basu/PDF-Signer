@@ -4,7 +4,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.signpdf.enums.*;
 
-import jakarta.validation.constraints.Size;
 import lombok.*;
 
 @Data
@@ -17,6 +16,5 @@ public class CreateSignatureTemplateRequest {
 	
 	String typedText;
 	
-	@Size(min =1 , max = 100)
 	MultipartFile image;
 }

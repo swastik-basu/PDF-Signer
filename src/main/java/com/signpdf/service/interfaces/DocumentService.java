@@ -7,17 +7,11 @@ import java.util.List;
 
 public interface DocumentService {
 
-    DocumentResponse uploadDocument(
-            MultipartFile file
-    );
+	DocumentResponse uploadDocument(MultipartFile file);
 
-    List<DocumentResponse> getMyDocuments();
+	List<DocumentResponse> getMyDocuments();
 
-    DocumentResponse getDocumentById(
-            Long documentId
-    );
+	DocumentResponse getDocumentById(Long documentId);
 
-    void deleteDocument(
-            Long documentId
-    );
+	void deleteDocument(Long documentId);
 }
