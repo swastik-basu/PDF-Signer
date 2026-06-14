@@ -3,13 +3,13 @@ package com.signpdf.service.impl;
 import com.signpdf.dto.response.SignedDocumentResponse;
 
 import com.signpdf.entity.*;
-
+import com.signpdf.enums.AuditAction;
 import com.signpdf.enums.DocumentStatus;
-
+import com.signpdf.exception.*;
 import com.signpdf.repository.*;
-
+import com.signpdf.service.interfaces.AuditService;
 import com.signpdf.service.interfaces.PdfSigningService;
-
+import com.signpdf.util.RequestUtils;
 import com.signpdf.security.SecurityUtils;
 
 import lombok.RequiredArgsConstructor;
@@ -45,6 +45,9 @@ public class PdfSigningServiceImpl implements PdfSigningService {
 
 	private final SecurityUtils securityUtils;
 
+	private final AuditService auditService;
+	
+	private final RequestUtils requestUtils;
 	@Override
 	public SignedDocumentResponse signDocument(Long documentId) {
 
@@ -53,7 +56,7 @@ public class PdfSigningServiceImpl implements PdfSigningService {
 			User currentUser = securityUtils.getCurrentUser();
 
 			Document document = documentRepository.findByIdAndOwner(documentId, currentUser)
-					.orElseThrow(() -> new RuntimeException("Document not found"));
+					.orElseThrow(() -> new DocumentNotFoundException("Document not found"));
 			List<SignaturePlacement> placements = signaturePlacementRepository.findByDocument(document);
 
 			PDDocument pdf = Loader.loadPDF(document.getPdfData());
@@ -88,6 +91,8 @@ public class PdfSigningServiceImpl implements PdfSigningService {
 
 			document.setStatus(DocumentStatus.SIGNED);
 
+			auditService.log(AuditAction.SIGN_DOCUMENT, "Generated signed PDF", currentUser, requestUtils.getClientIpAddress());
+
 			documentRepository.save(document);
 
 			return new SignedDocumentResponse(saved.getId(), document.getId(), saved.getGeneratedAt(),
@@ -104,12 +109,15 @@ public class PdfSigningServiceImpl implements PdfSigningService {
 
 		User currentUser = securityUtils.getCurrentUser();
 
-		SignedDocument signedDocument = signedDocumentRepository.findByIdAndDocument_Owner(signedDocumentId, currentUser)
-				.orElseThrow(() -> new RuntimeException("Signed document not found"));
+		SignedDocument signedDocument = signedDocumentRepository
+				.findByIdAndDocument_Owner(signedDocumentId, currentUser)
+				.orElseThrow(() -> new SignedDocumentNotFoundException("Signed document not found"));
+
+		auditService.log(AuditAction.DOWNLOAD_DOCUMENT, "Downloaded signed PDF", currentUser, requestUtils.getClientIpAddress());
 
 		return ResponseEntity.ok()
 
-				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=signed-document.pdf")
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=<original_document>.pdf")
 
 				.contentType(MediaType.APPLICATION_PDF)
 

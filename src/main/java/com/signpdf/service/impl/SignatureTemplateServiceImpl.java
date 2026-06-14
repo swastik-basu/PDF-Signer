@@ -5,11 +5,13 @@ import com.signpdf.dto.response.SignatureTemplateResponse;
 
 import com.signpdf.entity.SignatureTemplates;
 import com.signpdf.entity.User;
-
+import com.signpdf.enums.AuditAction;
+import com.signpdf.exception.SignatureNotFoundException;
 import com.signpdf.repository.SignatureTemplatesRepository;
 import com.signpdf.repository.UserRepository;
-
+import com.signpdf.service.interfaces.AuditService;
 import com.signpdf.service.interfaces.SignatureTemplateService;
+import com.signpdf.util.RequestUtils;
 
 import lombok.RequiredArgsConstructor;
 
@@ -30,6 +32,10 @@ public class SignatureTemplateServiceImpl implements SignatureTemplateService {
 
 	private final UserRepository userRepository;
 
+	private final AuditService auditService;
+	
+	private final RequestUtils requestUtils;
+
 	@Override
 	public SignatureTemplateResponse createSignature(CreateSignatureTemplateRequest request) {
 
@@ -39,7 +45,7 @@ public class SignatureTemplateServiceImpl implements SignatureTemplateService {
 
 			if (request.getImage() == null || request.getImage().isEmpty()) {
 
-				throw new RuntimeException("Signature image is required");
+				throw new SignatureNotFoundException("Signature image is required");
 			}
 
 			SignatureTemplates signature = SignatureTemplates.builder().signatureName(request.getSignatureName())
@@ -47,6 +53,9 @@ public class SignatureTemplateServiceImpl implements SignatureTemplateService {
 					.createdAt(LocalDateTime.now()).owner(currentUser).build();
 
 			SignatureTemplates saved = signatureTemplatesRepository.save(signature);
+
+			auditService.log(AuditAction.CREATE_SIGNATURE, "Created signature: " + signature.getSignatureName(),
+					currentUser, requestUtils.getClientIpAddress());
 
 			return mapToResponse(saved);
 
@@ -70,7 +79,7 @@ public class SignatureTemplateServiceImpl implements SignatureTemplateService {
 		User currentUser = getCurrentUser();
 
 		SignatureTemplates signature = signatureTemplatesRepository.findByIdAndOwner(signatureId, currentUser)
-				.orElseThrow(() -> new RuntimeException("Signature not found"));
+				.orElseThrow(() -> new SignatureNotFoundException("Signature not found"));
 
 		return mapToResponse(signature);
 	}
@@ -81,7 +90,7 @@ public class SignatureTemplateServiceImpl implements SignatureTemplateService {
 		User currentUser = getCurrentUser();
 
 		SignatureTemplates signature = signatureTemplatesRepository.findByIdAndOwner(signatureId, currentUser)
-				.orElseThrow(() -> new RuntimeException("Signature not found"));
+				.orElseThrow(() -> new SignatureNotFoundException("Signature not found"));
 
 		signatureTemplatesRepository.delete(signature);
 	}

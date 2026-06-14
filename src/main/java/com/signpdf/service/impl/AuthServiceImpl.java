@@ -5,14 +5,15 @@ import com.signpdf.dto.request.RegisterRequest;
 import com.signpdf.dto.response.AuthResponse;
 
 import com.signpdf.entity.User;
-
+import com.signpdf.enums.AuditAction;
 import com.signpdf.enums.Role;
 
 import com.signpdf.repository.UserRepository;
 
 import com.signpdf.security.JwtService;
-
+import com.signpdf.service.interfaces.AuditService;
 import com.signpdf.service.interfaces.AuthService;
+import com.signpdf.util.RequestUtils;
 
 import lombok.RequiredArgsConstructor;
 
@@ -35,6 +36,10 @@ public class AuthServiceImpl implements AuthService {
 
 	private final AuthenticationManager authenticationManager;
 
+	private final AuditService auditService;
+	
+	private final RequestUtils requestUtils;
+
 	@Override
 	public AuthResponse register(RegisterRequest request) {
 
@@ -46,6 +51,8 @@ public class AuthServiceImpl implements AuthService {
 				.password(passwordEncoder.encode(request.getPassword())).role(Role.USER).build();
 
 		User savedUser = userRepository.save(user);
+
+		auditService.log(AuditAction.REGISTER, "User registered", savedUser, requestUtils.getClientIpAddress());
 
 		String token = jwtService.generateToken(new com.signpdf.security.customUserDetails(savedUser));
 
@@ -63,6 +70,8 @@ public class AuthServiceImpl implements AuthService {
 				.orElseThrow(() -> new RuntimeException("User not found"));
 
 		String token = jwtService.generateToken(new com.signpdf.security.customUserDetails(user));
+
+		auditService.log(AuditAction.LOGIN, "User logged in", user, requestUtils.getClientIpAddress());
 
 		return new AuthResponse(token, user.getId(), user.getName(), user.getEmail(), user.getRole());
 	}

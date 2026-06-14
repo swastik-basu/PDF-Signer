@@ -44,4 +44,11 @@ public class User{
 
 	@OneToMany(mappedBy = "user")
 	private List<AuditLog> auditLogs;
+	
+	@ManyToOne
+	@JoinColumn(name = "requested_by")
+	private User requestedBy;
+	
+	@ManyToOne
+	private SignatureTemplates signatureTemplate;
 }

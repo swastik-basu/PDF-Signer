@@ -7,15 +7,16 @@ import com.signpdf.entity.Document;
 import com.signpdf.entity.SignaturePlacement;
 import com.signpdf.entity.SignatureTemplates;
 import com.signpdf.entity.User;
-
+import com.signpdf.enums.AuditAction;
 import com.signpdf.enums.SignaturePlacementStatus;
 
 import com.signpdf.repository.DocumentRepository;
 import com.signpdf.repository.SignaturePlacementRepository;
 import com.signpdf.repository.SignatureTemplatesRepository;
 import com.signpdf.repository.UserRepository;
-
+import com.signpdf.service.interfaces.AuditService;
 import com.signpdf.service.interfaces.SignaturePlacementService;
+import com.signpdf.util.RequestUtils;
 
 import lombok.RequiredArgsConstructor;
 
@@ -39,6 +40,10 @@ public class SignaturePlacementServiceImpl implements SignaturePlacementService 
 
 	private final UserRepository userRepository;
 
+	private final AuditService auditService;
+
+	private final RequestUtils requestUtils;
+
 	@Override
 	public SignaturePlacementResponse placeSignature(PlaceSignatureRequest request) {
 
@@ -58,6 +63,9 @@ public class SignaturePlacementServiceImpl implements SignaturePlacementService 
 				.createdAt(LocalDateTime.now()).build();
 
 		SignaturePlacement saved = signaturePlacementRepository.save(placement);
+
+		auditService.log(AuditAction.PLACE_SIGNATURE, "Placed signature on document " + document.getId(), currentUser,
+				requestUtils.getClientIpAddress());
 
 		return mapToResponse(saved);
 	}

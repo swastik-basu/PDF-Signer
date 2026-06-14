@@ -28,8 +28,12 @@ public class SigningRequest{
 	@Enumerated(EnumType.STRING)
 	SigningRequestStatus status;
 
+	@ManyToOne
+	@JoinColumn(name = "requested_by")
+	private User requestedBy;
+
 	LocalDateTime createdAt;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "document_id")
 	private Document document;

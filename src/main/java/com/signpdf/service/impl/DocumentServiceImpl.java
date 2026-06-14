@@ -3,10 +3,14 @@ package com.signpdf.service.impl;
 import com.signpdf.dto.response.DocumentResponse;
 import com.signpdf.entity.Document;
 import com.signpdf.entity.User;
+import com.signpdf.enums.AuditAction;
 import com.signpdf.enums.DocumentStatus;
+import com.signpdf.exception.DocumentNotFoundException;
 import com.signpdf.repository.DocumentRepository;
 import com.signpdf.repository.UserRepository;
+import com.signpdf.service.interfaces.AuditService;
 import com.signpdf.service.interfaces.DocumentService;
+import com.signpdf.util.RequestUtils;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,6 +32,10 @@ public class DocumentServiceImpl implements DocumentService {
 	private final DocumentRepository documentRepository;
 
 	private final UserRepository userRepository;
+
+	private final AuditService auditService;
+	
+	private final RequestUtils requestUtils;
 
 	@Override
 	public DocumentResponse uploadDocument(MultipartFile file) {
@@ -51,6 +59,8 @@ public class DocumentServiceImpl implements DocumentService {
 
 			Document savedDocument = documentRepository.save(document);
 
+			auditService.log(AuditAction.UPLOAD_DOCUMENT, "Uploaded document: " + document.getFileName(), currentUser,requestUtils.getClientIpAddress());
+
 			return mapToResponse(savedDocument);
 
 		} catch (IOException e) {
@@ -72,7 +82,7 @@ public class DocumentServiceImpl implements DocumentService {
 		User currentUser = getCurrentUser();
 
 		Document document = documentRepository.findByIdAndOwner(documentId, currentUser)
-				.orElseThrow(() -> new RuntimeException("Document not found"));
+				.orElseThrow(() -> new DocumentNotFoundException("Document not found"));
 
 		return mapToResponse(document);
 	}
