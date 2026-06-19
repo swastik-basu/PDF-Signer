@@ -18,7 +18,7 @@ public class CorsConfig {
 
 		CorsConfiguration configuration = new CorsConfiguration();
 
-		configuration.setAllowedOrigins(List.of("http://localhost:5173" , "https://sign-buddy-neon.vercel.app/login" , "https://sign-buddy-neon.vercel.app/register"));
+		configuration.setAllowedOrigins(List.of("http://localhost:5173" , "https://sign-buddy-neon.vercel.app/login"));
 
 		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 
