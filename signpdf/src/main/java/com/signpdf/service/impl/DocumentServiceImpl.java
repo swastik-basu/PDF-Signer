@@ -2,11 +2,13 @@ package com.signpdf.service.impl;
 
 import com.signpdf.dto.response.DocumentResponse;
 import com.signpdf.entity.Document;
+import com.signpdf.entity.SignedDocument;
 import com.signpdf.entity.User;
 import com.signpdf.enums.AuditAction;
 import com.signpdf.enums.DocumentStatus;
 import com.signpdf.exception.DocumentNotFoundException;
 import com.signpdf.repository.DocumentRepository;
+import com.signpdf.repository.SignedDocumentRepository;
 import com.signpdf.repository.UserRepository;
 import com.signpdf.service.interfaces.AuditService;
 import com.signpdf.service.interfaces.DocumentService;
@@ -34,8 +36,10 @@ public class DocumentServiceImpl implements DocumentService {
 	private final UserRepository userRepository;
 
 	private final AuditService auditService;
-	
+
 	private final RequestUtils requestUtils;
+
+	private final SignedDocumentRepository signedDocumentRepository;
 
 	@Override
 	public DocumentResponse uploadDocument(MultipartFile file) {
@@ -59,7 +63,8 @@ public class DocumentServiceImpl implements DocumentService {
 
 			Document savedDocument = documentRepository.save(document);
 
-			auditService.log(AuditAction.UPLOAD_DOCUMENT, "Uploaded document: " + document.getFileName(), currentUser,requestUtils.getClientIpAddress());
+			auditService.log(AuditAction.UPLOAD_DOCUMENT, "Uploaded document: " + document.getFileName(), currentUser,
+					requestUtils.getClientIpAddress());
 
 			return mapToResponse(savedDocument);
 
@@ -96,6 +101,7 @@ public class DocumentServiceImpl implements DocumentService {
 				.orElseThrow(() -> new RuntimeException("Document not found"));
 
 		documentRepository.delete(document);
+
 	}
 
 	private User getCurrentUser() {
@@ -109,7 +115,22 @@ public class DocumentServiceImpl implements DocumentService {
 
 	private DocumentResponse mapToResponse(Document document) {
 
+		Long signedDocumentId = signedDocumentRepository.findByDocument(document).map(SignedDocument::getId)
+				.orElse(null);
+
 		return new DocumentResponse(document.getId(), document.getFileName(), document.getFileSize(),
-				document.getStatus(), document.getCreatedAt());
+				document.getStatus(), document.getCreatedAt(), signedDocumentId);
 	}
+
+	@Override
+	public byte[] getDocumentContent(Long documentId) {
+
+		User currentUser = getCurrentUser();
+
+		Document document = documentRepository.findByIdAndOwner(documentId, currentUser)
+				.orElseThrow(() -> new DocumentNotFoundException("Document not found"));
+
+		return document.getPdfData();
+	}
+
 }

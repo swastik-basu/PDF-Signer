@@ -11,6 +11,8 @@ public class SignatureTemplateResponse{
 	String signatureName;
 
 	SignatureType type;
-
+	
+	String imageBase64;
+	
 	LocalDateTime createdAt;
 }

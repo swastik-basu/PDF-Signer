@@ -1,6 +1,7 @@
 package com.signpdf.service.impl;
 
 import com.signpdf.dto.request.CreateSignatureTemplateRequest;
+import java.util.Base64;
 import com.signpdf.dto.response.SignatureTemplateResponse;
 
 import com.signpdf.entity.SignatureTemplates;
@@ -33,7 +34,7 @@ public class SignatureTemplateServiceImpl implements SignatureTemplateService {
 	private final UserRepository userRepository;
 
 	private final AuditService auditService;
-	
+
 	private final RequestUtils requestUtils;
 
 	@Override
@@ -106,7 +107,14 @@ public class SignatureTemplateServiceImpl implements SignatureTemplateService {
 
 	private SignatureTemplateResponse mapToResponse(SignatureTemplates signature) {
 
+		String imageBase64 = null;
+
+		if (signature.getSignatureImage() != null) {
+
+			imageBase64 = Base64.getEncoder().encodeToString(signature.getSignatureImage());
+		}
+
 		return new SignatureTemplateResponse(signature.getId(), signature.getSignatureName(), signature.getType(),
-				signature.getCreatedAt());
+				imageBase64, signature.getCreatedAt());
 	}
 }

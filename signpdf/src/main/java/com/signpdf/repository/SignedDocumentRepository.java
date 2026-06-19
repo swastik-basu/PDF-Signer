@@ -6,6 +6,6 @@ import java.util.Optional;
 
 public interface SignedDocumentRepository extends JpaRepository<SignedDocument, Long> {
 	Optional<SignedDocument> findByDocument(Document document);
-
+	
 	Optional<SignedDocument> findByIdAndDocument_Owner(Long id, User owner);
 }

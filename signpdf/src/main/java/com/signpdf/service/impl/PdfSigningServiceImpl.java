@@ -46,8 +46,9 @@ public class PdfSigningServiceImpl implements PdfSigningService {
 	private final SecurityUtils securityUtils;
 
 	private final AuditService auditService;
-	
+
 	private final RequestUtils requestUtils;
+
 	@Override
 	public SignedDocumentResponse signDocument(Long documentId) {
 
@@ -84,14 +85,19 @@ public class PdfSigningServiceImpl implements PdfSigningService {
 
 			pdf.close();
 
-			SignedDocument signedDocument = SignedDocument.builder().document(document)
-					.signedPdfData(outputStream.toByteArray()).generatedAt(LocalDateTime.now()).build();
+			SignedDocument signedDocument = signedDocumentRepository.findByDocument(document)
+					.orElse(new SignedDocument());
+
+			signedDocument.setDocument(document);
+			signedDocument.setSignedPdfData(outputStream.toByteArray());
+			signedDocument.setGeneratedAt(LocalDateTime.now());
 
 			SignedDocument saved = signedDocumentRepository.save(signedDocument);
 
 			document.setStatus(DocumentStatus.SIGNED);
 
-			auditService.log(AuditAction.SIGN_DOCUMENT, "Generated signed PDF", currentUser, requestUtils.getClientIpAddress());
+			auditService.log(AuditAction.SIGN_DOCUMENT, "Generated signed PDF", currentUser,
+					requestUtils.getClientIpAddress());
 
 			documentRepository.save(document);
 
@@ -113,7 +119,8 @@ public class PdfSigningServiceImpl implements PdfSigningService {
 				.findByIdAndDocument_Owner(signedDocumentId, currentUser)
 				.orElseThrow(() -> new SignedDocumentNotFoundException("Signed document not found"));
 
-		auditService.log(AuditAction.DOWNLOAD_DOCUMENT, "Downloaded signed PDF", currentUser, requestUtils.getClientIpAddress());
+		auditService.log(AuditAction.DOWNLOAD_DOCUMENT, "Downloaded signed PDF", currentUser,
+				requestUtils.getClientIpAddress());
 
 		return ResponseEntity.ok()
 

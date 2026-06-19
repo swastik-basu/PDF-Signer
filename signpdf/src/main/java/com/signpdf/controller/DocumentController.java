@@ -5,6 +5,8 @@ import com.signpdf.service.interfaces.DocumentService;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.*;
@@ -44,5 +46,13 @@ public class DocumentController {
 		documentService.deleteDocument(id);
 
 		return ResponseEntity.ok("Document deleted successfully");
+	}
+
+	@GetMapping("/{id}/place")
+	public ResponseEntity<byte[]> getDocumentContent(@PathVariable Long id) {
+
+		byte[] pdfData = documentService.getDocumentContent(id);
+
+		return ResponseEntity.ok().contentType(org.springframework.http.MediaType.APPLICATION_PDF).body(pdfData);
 	}
 }

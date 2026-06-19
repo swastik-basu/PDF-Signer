@@ -12,4 +12,6 @@ public class DocumentResponse{
 	Long fileSize;
 	DocumentStatus status;
 	LocalDateTime createdAt;
+	
+	Long signedDocumentId;
 }

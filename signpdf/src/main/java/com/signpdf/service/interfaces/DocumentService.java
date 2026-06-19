@@ -12,6 +12,9 @@ public interface DocumentService {
 	List<DocumentResponse> getMyDocuments();
 
 	DocumentResponse getDocumentById(Long documentId);
-
+	
+	byte[] getDocumentContent(Long id);
+	
+	
 	void deleteDocument(Long documentId);
 }
