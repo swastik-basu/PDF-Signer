@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Base URL comes from .env (VITE_API_BASE_URL). Falls back to localhost:8080
 // to match the Spring Boot dev server.
-const baseURL = "http://localhost:8080";
+const baseURL = "https://sign-buddy-backend.onrender.com";
 
 const axiosClient = axios.create({
   baseURL,
