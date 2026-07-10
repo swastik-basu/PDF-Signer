@@ -1,0 +1,58 @@
+version: "3.9"
+
+services:
+
+  mysql:
+
+    image: mysql:8
+
+    container_name: signbuddy-mysql
+
+    restart: always
+
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_Password}
+      MYSQL_DATABASE: sign_pdf
+
+    ports:
+      - "3306:3306"
+
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  backend:
+
+    build: ./signpdf
+
+    container_name: signbuddy-backend
+
+    ports:
+      - "8080:8080"
+
+    depends_on:
+      - mysql
+
+    environment:
+      SPRING_DATASOURCE_URL: ${DB_URL}
+      SPRING_DATASOURCE_USERNAME: ${DB_Username}
+      SPRING_DATASOURCE_PASSWORD: ${DB_Password}
+      JWT_EXPIRATION: ${JWT_EXPIRATION}
+      JWT_SECRET: ${JWT_SECRET}
+      MAIL_ADDRESS: ${MAIL_ADDRESS}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+
+  frontend:
+
+    build: ./signpdf-frontend
+
+    container_name: signbuddy-frontend
+
+    ports:
+      - "3000:3000"
+
+    depends_on:
+      - backend
+
+volumes:
+
+  mysql-data:
