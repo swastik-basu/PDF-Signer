@@ -15,7 +15,7 @@ services:
       MYSQL_DATABASE: sign_pdf
 
     ports:
-      - "3306:3306"
+      - "3307:3306"
 
     volumes:
       - mysql-data:/var/lib/mysql
@@ -37,9 +37,10 @@ services:
       SPRING_DATASOURCE_USERNAME: ${DB_Username}
       SPRING_DATASOURCE_PASSWORD: ${DB_Password}
       JWT_EXPIRATION: ${JWT_EXPIRATION}
-      JWT_SECRET: ${JWT_SECRET}
+      JWT_SECRET: ${JWT_KEY}
       MAIL_ADDRESS: ${MAIL_ADDRESS}
       MAIL_PASSWORD: ${MAIL_PASSWORD}
+      FRONTEND_URL: ${FRONTEND_URL}
 
   frontend:
 
