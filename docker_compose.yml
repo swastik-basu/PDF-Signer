@@ -44,7 +44,7 @@ services:
 
   frontend:
 
-    build: ./signpdf-frontend
+    build: ./signdocs-frontend
 
     container_name: signbuddy-frontend
 
