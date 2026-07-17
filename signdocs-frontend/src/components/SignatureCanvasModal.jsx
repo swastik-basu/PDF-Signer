@@ -75,15 +75,10 @@ export default function SignatureCanvasModal({ onClose, onSave }) {
     ctx.fillText(typedName || "Your name", canvas.width / 2, canvas.height / 2);
   };
 
-  useEffect(() => {
-    if (tab === "type") {
-      renderTypedSignature();
-      setHasDrawing(Boolean(typedName));
-    } else {
-      clearCanvas();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tab]);
+  const canSave =
+    tab === "draw"
+      ? hasDrawing
+      : typedName.trim().length > 0;
 
   useEffect(() => {
     if (tab === "type") renderTypedSignature();
@@ -121,11 +116,10 @@ export default function SignatureCanvasModal({ onClose, onSave }) {
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              className={`flex flex-1 items-center justify-center gap-1.5 rounded-md py-1.5 text-sm font-semibold transition ${
-                tab === t.key
-                  ? "bg-white text-brand-600 shadow-card"
-                  : "text-ink-500 hover:text-ink-700"
-              }`}
+              className={`flex flex-1 items-center justify-center gap-1.5 rounded-md py-1.5 text-sm font-semibold transition ${tab === t.key
+                ? "bg-white text-brand-600 shadow-card"
+                : "text-ink-500 hover:text-ink-700"
+                }`}
             >
               <i className={`ti ${t.icon} text-base`} aria-hidden="true" />
               {t.label}
@@ -181,7 +175,7 @@ export default function SignatureCanvasModal({ onClose, onSave }) {
           </button>
           <button
             onClick={handleSave}
-            disabled={!hasDrawing}
+            disabled={!canSave}
             className="btn-primary flex-[2]"
           >
             Save signature
