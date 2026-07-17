@@ -123,8 +123,8 @@ export default function PlacementEditor() {
       const leftPt = xPt - sizePt.width / 2;
       const topPt = yFromTopPt - sizePt.height / 2;
       return {
-        xCoordinate: Math.round(Math.max(0, leftPt)),
-        yCoordinate: Math.round(Math.max(0, pageHeightPt - topPt - sizePt.height)),
+        xCoordinate: Math.max(0, leftPt),
+        yCoordinate: Math.max(0, pageHeightPt - topPt - sizePt.height),
       };
     },
     [pageGeometry]
@@ -145,6 +145,7 @@ export default function PlacementEditor() {
     [pageGeometry]
   );
 
+  
   // ---- Placing new fields ----
   const addPlacementAt = (px, py) => {
     if (!activeSignature) {
@@ -174,7 +175,7 @@ export default function PlacementEditor() {
 
   const handleStageClick = (e) => {
     if (draggingExisting) return;
-    const rect = stageRef.current.getBoundingClientRect();
+    const rect = canvasRef.current.getBoundingClientRect();
     addPlacementAt(e.clientX - rect.left, e.clientY - rect.top);
   };
 
@@ -213,8 +214,13 @@ export default function PlacementEditor() {
 
     const onMove = (e) => {
       const rect = stageRef.current.getBoundingClientRect();
-      const px = e.clientX - rect.left;
-      const py = e.clientY - rect.top;
+      const px =
+        (e.clientX - rect.left) *
+        (canvasRef.current.width / rect.width);
+
+      const py =
+        (e.clientY - rect.top) *
+        (canvasRef.current.height / rect.height);
       const placement = placements.find((p) => p.localId === draggingExisting.localId);
       if (!placement) return;
       const sizePt = { width: placement.width, height: placement.height };
